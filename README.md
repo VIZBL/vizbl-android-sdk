@@ -38,17 +38,27 @@ Add dependency:
 implementation "com.vizbl:sdk:VERSION"
 ```
 
-## Usage
-
-1. Create and display `VizblARScene`
-2. Obtain `VizblARController`
-3. Load object using `tinuuid`
+## Minimal integration
 
 ```kotlin
-controller.loadObject(
-    tinuuid = "your-tinuuid",
-    hid = null
-)
+@Composable
+fun ARScreen() {
+    var controller: VizblARController? = null
+
+    VizblARScene(
+        onControllerReady = { controller = it },
+        onSessionReady = {
+            controller?.let {
+                val model = ARObjectReference.Single(
+                    id = ARObjectIdentifier.Tinuuid("your-tinuuid"),
+                    materialId = null
+                )
+
+                // launch the suspend add call from your coroutine scope
+            }
+        }
+    )
+}
 ```
 
 The SDK handles:
