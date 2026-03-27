@@ -1,0 +1,23 @@
+Copyright (c) 2026 Vizbl
+
+Vizbl Android SDK License
+
+This software is provided by Vizbl as a proprietary SDK.
+
+Permission is granted to use the SDK solely for integrating Vizbl services
+into applications.
+
+You may:
+- use the SDK in your applications
+- distribute applications that include the SDK
+
+You may NOT:
+- distribute, sublicense, or resell the SDK as a standalone product
+- modify, reverse engineer, decompile, or disassemble the SDK
+- use the SDK outside of Vizbl services
+- use the SDK to build a competing product or service
+
+The SDK requires connection to Vizbl cloud services to function.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.
+Vizbl reserves the right to modify or revoke access to the SDK at any time.
