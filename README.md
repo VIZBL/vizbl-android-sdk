@@ -14,28 +14,39 @@ The SDK handles AR, placement, interaction, and UI automatically.
 
 ## Installation
 
-The SDK is distributed via GitHub Packages.
+The SDK is distributed via GitHub Packages. Current version: **0.2**.
 
-Add the repository to your `settings.gradle`:
+GitHub Packages requires authentication even for public packages. Create a GitHub personal access token with the `read:packages` scope and keep it out of your repository, for example in `~/.gradle/gradle.properties`:
 
-```gradle
+```properties
+gpr.user=YOUR_GITHUB_USERNAME
+gpr.key=YOUR_GITHUB_TOKEN
+```
+
+Add the repository to your `settings.gradle.kts`:
+
+```kotlin
 dependencyResolutionManagement {
     repositories {
+        google()
+        mavenCentral()
         maven {
             url = uri("https://maven.pkg.github.com/VIZBL/vizbl-android-sdk")
             credentials {
-                username = "YOUR_GITHUB_USERNAME"
-                password = "YOUR_GITHUB_TOKEN"
+                username = providers.gradleProperty("gpr.user").orNull ?: System.getenv("GITHUB_ACTOR")
+                password = providers.gradleProperty("gpr.key").orNull ?: System.getenv("GITHUB_TOKEN")
             }
         }
     }
 }
 ```
 
-Add dependency:
+Never commit the token to source control.
 
-```gradle
-implementation "com.vizbl:sdk:VERSION"
+Add the dependency to your module's `build.gradle.kts`:
+
+```kotlin
+implementation("com.us.vizbl.ar.sdk:ar-sdk:0.2")
 ```
 
 ## Minimal integration
