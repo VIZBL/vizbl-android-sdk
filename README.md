@@ -14,71 +14,59 @@ The SDK handles AR, placement, interaction, and UI automatically.
 
 ## Installation
 
-The SDK is distributed via GitHub Packages. Current version: **0.2**.
+The SDK is published to Maven Central. Current version: **0.2**. Minimum Android SDK: 27 (Android 8.1); the device must support ARCore.
 
-GitHub Packages requires authentication even for public packages. Create a GitHub personal access token with the `read:packages` scope and keep it out of your repository, for example in `~/.gradle/gradle.properties`:
-
-```properties
-gpr.user=YOUR_GITHUB_USERNAME
-gpr.key=YOUR_GITHUB_TOKEN
-```
-
-Add the repository to your `settings.gradle.kts`:
+Make sure `mavenCentral()` is in your repositories (it is in every project Android Studio creates), then add the dependency to your module's `build.gradle.kts`:
 
 ```kotlin
-dependencyResolutionManagement {
-    repositories {
-        google()
-        mavenCentral()
-        maven {
-            url = uri("https://maven.pkg.github.com/VIZBL/vizbl-android-sdk")
-            credentials {
-                username = providers.gradleProperty("gpr.user").orNull ?: System.getenv("GITHUB_ACTOR")
-                password = providers.gradleProperty("gpr.key").orNull ?: System.getenv("GITHUB_TOKEN")
-            }
-        }
-    }
-}
+implementation("com.vizbl:ar-sdk:0.2")
 ```
 
-Never commit the token to source control.
+No tokens or extra repositories are needed. (Older versions were published to GitHub Packages under `com.us.vizbl.ar.sdk:ar-sdk`; that repository still works but is no longer updated.)
 
-Add the dependency to your module's `build.gradle.kts`:
-
-```kotlin
-implementation("com.us.vizbl.ar.sdk:ar-sdk:0.2")
-```
+The SDK ships ARCore, SceneView and Jetpack Compose as transitive dependencies, so your app must use Compose and target Java 17 or later.
 
 ## Minimal integration
 
+`VizblARScene` is a composable that runs the whole AR flow. Add an object once the session is ready; `add` is a suspend function, so call it from a coroutine scope.
+
 ```kotlin
+import androidx.compose.runtime.*
+import com.us.vizbl.ar.sdk.api.ARObjectIdentifier
+import com.us.vizbl.ar.sdk.api.ARObjectReference
+import com.us.vizbl.ar.sdk.api.VizblARController
+import com.us.vizbl.ar.sdk.api.VizblARScene
+import kotlinx.coroutines.launch
+
 @Composable
-fun ARScreen() {
-    var controller: VizblARController? = null
+fun ARScreen(tinuuid: String) {
+    val scope = rememberCoroutineScope()
+    var controller by remember { mutableStateOf<VizblARController?>(null) }
 
     VizblARScene(
         onControllerReady = { controller = it },
         onSessionReady = {
-            controller?.let {
-                val model = ARObjectReference.Single(
-                    id = ARObjectIdentifier.Tinuuid("your-tinuuid"),
-                    materialId = null
+            scope.launch {
+                controller?.add(
+                    model = ARObjectReference.Single(
+                        id = ARObjectIdentifier.Tinuuid(tinuuid),
+                        materialId = null
+                    ),
+                    configuration = {
+                        allowsTapToSelected(true)
+                        allowsMove(true)
+                        allowRotation(true)
+                    }
                 )
-
-                // launch the suspend add call from your coroutine scope
             }
         }
     )
 }
 ```
 
-The SDK handles:
+`tinuuid` is the Object ID of a model in your Vizbl library (shown in the Vizbl cabinet and returned by the API). `ARObjectIdentifier.ObjectId(UUID)` works the same way with the UUID form.
 
-- AR session
-- surface detection
-- placement
-- interaction
-- UI
+Ask for the camera permission before showing the scene. The SDK handles the AR session, surface detection, placement, interaction and the on-screen controls.
 
 ## Documentation
 
